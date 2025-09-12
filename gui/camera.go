@@ -43,6 +43,43 @@ func (c *Camera) worldMatrix() ebiten.GeoM {
 	return m
 }
 
+// Default sample
+func (c *Camera) Update() error {
+	if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
+		c.Position[0] -= 1
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyD) || ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
+		c.Position[0] += 1
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyW) || ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
+		c.Position[1] -= 1
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyS) || ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
+		c.Position[1] += 1
+	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyQ) {
+		if c.ZoomFactor > -2400 {
+			c.ZoomFactor -= 1
+		}
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyE) {
+		if c.ZoomFactor < 2400 {
+			c.ZoomFactor += 1
+		}
+	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyR) {
+		c.Rotation += 1
+	}
+
+	if ebiten.IsKeyPressed(ebiten.KeySpace) {
+		c.Reset()
+	}
+
+	return nil
+}
+
 func (c *Camera) Render(world, screen *ebiten.Image) {
 	screen.DrawImage(world, &ebiten.DrawImageOptions{
 		GeoM: c.worldMatrix(),
@@ -60,6 +97,7 @@ func (c *Camera) ScreenToWorld(posX, posY int) (float64, float64) {
 	}
 }
 
+// Default sample
 func (c *Camera) Reset() {
 	c.Position[0] = 0
 	c.Position[1] = 0
