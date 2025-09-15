@@ -111,3 +111,11 @@ func (this *Vec[T]) Lerp(v Vec[T], t T) Vec[T] {
 		Z: this.Z + (v.Z-this.Z)*t,
 	}
 }
+
+func (this *Vec[T]) LerpUnclamped(v Vec[T], t T) Vec[T] {
+	return Vec[T]{
+		X: this.X + (v.X-this.X)*t,
+		Y: this.Y + (v.Y-this.Y)*t,
+		Z: this.Z + (v.Z-this.Z)*t,
+	}
+}
