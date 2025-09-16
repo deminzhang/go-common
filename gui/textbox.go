@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"golang.org/x/image/font"
 )
 
@@ -168,7 +168,10 @@ func (t *TextBox) Draw(dst *ebiten.Image) {
 		if _, h := t.viewSize(); y >= h+t.lineHeight {
 			continue
 		}
-		text.Draw(t.contentBuf, line, uiFont, x, y, t.TextColor)
+		op := &text.DrawOptions{}
+		op.GeoM.Translate(float64(x), float64(y))
+		op.ColorScale.ScaleWithColor(t.TextColor)
+		text.Draw(t.contentBuf, line, uiFontFace, op)
 	}
 	op := ebiten.DrawImageOptions{}
 	dst.DrawImage(t.contentBuf, &op)
