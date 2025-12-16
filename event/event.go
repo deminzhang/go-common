@@ -3,6 +3,7 @@ package event
 import (
 	"fmt"
 	"reflect"
+	"sync"
 )
 
 type ErrorMode int
@@ -18,7 +19,7 @@ var (
 )
 
 type Event[T any] struct {
-	//mu    sync.RWMutex 如果Reg有多线程,则需要加锁,如果Reg在init,则不需要加锁
+	mu   sync.RWMutex //如果Reg有多线程,则需要加锁,如果Reg在init,则不需要加锁
 	cbs  []T
 	Call T
 }
@@ -27,9 +28,25 @@ func (e *Event[T]) Reg(cb T) {
 	if lockReg {
 		panic("static event had lock reg. must reg in init")
 	}
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	e.cbs = append(e.cbs, cb)
 }
+func (e *Event[T]) Unreg(cb T) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	for i, registered := range e.cbs {
+		if reflect.DeepEqual(
+			reflect.ValueOf(registered).Pointer(),
+			reflect.ValueOf(cb).Pointer(),
+		) {
+			e.cbs = append(e.cbs[:i], e.cbs[i+1:]...)
+			return
+		}
+	}
+}
 
+// 静态事件禁止后续注册
 func LockReg() {
 	lockReg = true
 }
@@ -46,6 +63,10 @@ func Def[T any]() *Event[T] {
 	}
 	fn := reflect.MakeFunc(cbType, func(args []reflect.Value) []reflect.Value {
 		var ret []reflect.Value // 返回最后一个回调的返回值
+		if !lockReg {           //如果没有锁定注册,则需要加锁
+			e.mu.RLock()
+			defer e.mu.RUnlock()
+		}
 		for _, cb := range e.cbs {
 			func() {
 				defer func() {
