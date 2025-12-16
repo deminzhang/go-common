@@ -17,6 +17,7 @@ var (
 	errorMode ErrorMode = PanicOnError
 )
 
+// 动态事件
 type Event[T any] struct {
 	mu   sync.RWMutex //多线程时用
 	cbs  []T
@@ -42,10 +43,7 @@ func (e *Event[T]) Unreg(cb T) {
 	}
 }
 
-func SetErrorMode(mode ErrorMode) {
-	errorMode = mode
-}
-func Def[T any]() *Event[T] {
+func New[T any]() *Event[T] {
 	cbType := reflect.TypeFor[T]()
 	if cbType.Kind() != reflect.Func {
 		panic("Event type parameter must be a function")
@@ -78,4 +76,8 @@ func Def[T any]() *Event[T] {
 	})
 	e.Call = fn.Interface().(T)
 	return e
+}
+
+func SetErrorMode(mode ErrorMode) {
+	errorMode = mode
 }

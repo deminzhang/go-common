@@ -7,7 +7,7 @@ import (
 
 // 静态事件 禁止后续注册
 type StaticEvent[T any] struct {
-	cbs  []T
+	cbs  []reflect.Value
 	Call T
 }
 
@@ -17,20 +17,20 @@ func (e *StaticEvent[T]) Reg(cb T) {
 	if lockReg {
 		panic("static event had lock reg. must reg in init")
 	}
-	e.cbs = append(e.cbs, cb)
+	e.cbs = append(e.cbs, reflect.ValueOf(cb))
 }
 
 // 全局锁定静态事件注册
-func LockReg() {
+func LockStaticEventReg() {
 	lockReg = true
 }
-func SDef[T any]() *StaticEvent[T] {
+func Def[T any]() *StaticEvent[T] {
 	cbType := reflect.TypeFor[T]()
 	if cbType.Kind() != reflect.Func {
 		panic("Event type parameter must be a function")
 	}
 	e := &StaticEvent[T]{
-		cbs: make([]T, 0, 1),
+		cbs: make([]reflect.Value, 0, 1),
 	}
 	fn := reflect.MakeFunc(cbType, func(args []reflect.Value) []reflect.Value {
 		var ret []reflect.Value // 返回最后一个回调的返回值
@@ -48,7 +48,7 @@ func SDef[T any]() *StaticEvent[T] {
 						}
 					}
 				}()
-				ret = reflect.ValueOf(cb).Call(args)
+				ret = cb.Call(args)
 			}()
 		}
 		return ret

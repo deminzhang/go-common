@@ -7,17 +7,14 @@ import (
 	"github.com/deminzhang/go-common/event"
 )
 
-// define.go
+// define*.go 全局静态事件
 var (
-	//全局静态事件
-	Event1 = event.SDef[func(s string, i int)]()
-	Event2 = event.SDef[func(s string)]()
-	Event3 = event.SDef[func()]()
-	//Event4 = event.SDef[func(ctx context.Context)]() //复杂参数需引用复的的包,define.go专门放一个包
-	//动态事件
-	Event5 = event.Def[func(s string, i int)]()
+	Event1 = event.Def[func(s string, i int)]()
+	Event2 = event.Def[func(s string)]()
+	//Event3 = event.Def[func(ctx context.Context)]() //复杂参数需引用复的的包,define.go专门放一个包
 )
 
+// 静态事件注册Reg=AddListener
 func init() {
 	// 示例1：两个参数的函数
 	Event1.Reg(func(s string, i int) {
@@ -34,29 +31,26 @@ func init() {
 	Event2.Reg(func(s string) {
 		fmt.Println("B", s)
 	})
-
-	// 示例3：没有参数的函数
-	Event3.Reg(func() {
-		fmt.Println("Callback 1")
-	})
-	Event3.Reg(func() {
-		fmt.Println("Callback 2")
-		panic("testX")
-	})
 }
+
+// logic*.go 动态事件
+var (
+	Event5 = event.New[func(s string, i int)]()
+)
+
+// main thread
 func TestEvent2(t *testing.T) {
-	//main thread
-	event.LockReg() // 锁定注册，防止后续注册
-	// Event3.Reg(func() { // 此处会panic,因为已经锁定注册
-	// 	fmt.Println("Callback 3")
+	event.LockStaticEventReg() // 锁定注册，防止后续注册
+	// Event2.Reg(func(s string) { // panic,因为已经锁定注册
+	// 	fmt.Println("C", s)
 	// })
 
 	Event5.Reg(func(s string, i int) { //动态事件注册不锁定
 		fmt.Println("E5", s, i)
 	})
 
-	// logic.go
+	// logic.go Call==Trigger==Dispatch
 	Event1.Call("_EventTest2A", 100)
 	Event2.Call("_EventTest2A")
-	Event3.Call()
+	//Event2.Call("_EventTest2A", 2123) // 参数不匹配
 }
