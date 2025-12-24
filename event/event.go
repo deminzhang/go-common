@@ -14,43 +14,53 @@ const (
 )
 
 var (
-	errorMode ErrorMode = PanicOnError
+	defaultErrorHandler = func(err any) {
+		switch errorMode {
+		case PanicOnError:
+			panic(err)
+		case LogErrors:
+			fmt.Printf("Event callback panic: %v\n", err)
+		}
+	}
+
+	errorMode    ErrorMode     = PanicOnError
+	errorHandler func(err any) = defaultErrorHandler
 )
 
-// 动态事件
-type Event[T any] struct {
-	mu   sync.RWMutex //多线程时用
-	cbs  []T
+type EventType[T any] struct {
+	mu   sync.RWMutex
+	cbs  []reflect.Value //调用时用,Reg时反射过的funcs
 	Call T
 }
 
-func (e *Event[T]) Reg(cb T) {
+func (e *EventType[T]) Reg(cb T) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	e.cbs = append(e.cbs, cb)
+	e.cbs = append(e.cbs, reflect.ValueOf(cb))
 }
-func (e *Event[T]) Unreg(cb T) {
+func (e *EventType[T]) UnReg(cb T) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
+
+	targetPtr := reflect.ValueOf(cb).Pointer()
 	for i, registered := range e.cbs {
-		if reflect.DeepEqual(
-			reflect.ValueOf(registered).Pointer(),
-			reflect.ValueOf(cb).Pointer(),
-		) {
-			e.cbs = append(e.cbs[:i], e.cbs[i+1:]...)
+		if registered.Pointer() == targetPtr {
+			lastIdx := len(e.cbs) - 1
+			if i < lastIdx {
+				e.cbs[i] = e.cbs[lastIdx]
+			}
+			e.cbs = e.cbs[:lastIdx]
 			return
 		}
 	}
 }
 
-func New[T any]() *Event[T] {
+func Event[T any]() *EventType[T] {
 	cbType := reflect.TypeFor[T]()
 	if cbType.Kind() != reflect.Func {
 		panic("Event type parameter must be a function")
 	}
-	e := &Event[T]{
-		cbs: make([]T, 0, 1),
-	}
+	e := &EventType[T]{}
 	fn := reflect.MakeFunc(cbType, func(args []reflect.Value) []reflect.Value {
 		var ret []reflect.Value // 返回最后一个回调的返回值
 		e.mu.RLock()
@@ -58,18 +68,11 @@ func New[T any]() *Event[T] {
 		for _, cb := range e.cbs {
 			func() {
 				defer func() {
-					switch errorMode {
-					case PanicOnError:
-						return
-					}
 					if r := recover(); r != nil {
-						switch errorMode {
-						case LogErrors:
-							fmt.Printf("Event callback panic: %v\n", r)
-						}
+						errorHandler(r)
 					}
 				}()
-				ret = reflect.ValueOf(cb).Call(args)
+				ret = cb.Call(args)
 			}()
 		}
 		return ret
@@ -80,4 +83,12 @@ func New[T any]() *Event[T] {
 
 func SetErrorMode(mode ErrorMode) {
 	errorMode = mode
+}
+
+func SetErrorHandler(handler func(err any)) {
+	if handler == nil {
+		errorHandler = defaultErrorHandler
+		return
+	}
+	errorHandler = handler
 }

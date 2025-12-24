@@ -14,8 +14,8 @@ type Vector3 struct {
 	Z float32 `json:"z"`
 }
 
+// Warn: 浮点相等判定确认应用环境是否合适
 func (this *Vector3) Equal(v Vector3) bool {
-	//return this.X == v.X && this.Y == v.Y && this.Z == v.Z
 	return *this == v
 }
 
@@ -314,14 +314,3 @@ func Min(a, b Vector3) Vector3 {
 	}
 	return Vector3{X: x, Y: y, Z: z}
 }
-
-//func MoveTowards	将点 current 沿直线向 target 点移动。
-//func OrthoNormalize	将向量标准化并使它们彼此正交。
-//func Project	将向量投影到另一个向量上。
-//ProjectOnPlane	将向量投影到由法线定义的平面上（法线与该平面正交）。
-//Reflect	从法线定义的平面反射一个向量。
-//func RotateTowards	将向量 current 朝 target 旋转。
-//SignedAngle	返回 from 与 to 之间的有符号角度（以度为单位）。
-//func Slerp	在两个向量之间进行球形插值。
-//SlerpUnclamped	在两个向量之间进行球形插值。
-//SmoothDamp	随时间推移将一个向量逐渐改变为所需目标。

@@ -6,7 +6,6 @@ type Vector2Int struct {
 }
 
 func (this *Vector2Int) Equal(v Vector2Int) bool {
-	//return this.X == v.X && this.Y == v.Y
 	return *this == v
 }
 

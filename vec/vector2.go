@@ -9,8 +9,8 @@ type Vector2 struct {
 	Y float32 `json:"y"`
 }
 
+// Warn: 浮点相等判定确认应用环境是否合适
 func (this *Vector2) Equal(v1 Vector2) bool {
-	//return this.X == v.X && this.Y == v.Y
 	return *this == v1
 }
 

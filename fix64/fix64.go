@@ -2,8 +2,9 @@ package fix64
 
 import (
 	"fmt"
-	"golang.org/x/exp/constraints"
 	"strconv"
+
+	"golang.org/x/exp/constraints"
 )
 
 type Fix64 int64
@@ -37,19 +38,19 @@ func NewFix64[T constraints.Integer | constraints.Float](val T) Fix64 {
 	return Fix64(int64(t))
 }
 
-//func FromInt[T constraints.Integer](val T) Fix64 {
-//	return Fix64(int64(val) * one)
-//}
-//
-//func FromFloat[T constraints.Float](val T) Fix64 {
-//	t := float64(val) * float64(one)
-//	if t > 0 {
-//		t += 0.5
-//	} else if t < 0 {
-//		t -= 0.5
-//	}
-//	return Fix64(int64(t))
-//}
+func FromInt[T constraints.Integer](val T) Fix64 {
+	return Fix64(int64(val) * one)
+}
+
+func FromFloat[T constraints.Float](val T) Fix64 {
+	t := float64(val) * float64(one)
+	if t > 0 {
+		t += 0.5
+	} else if t < 0 {
+		t -= 0.5
+	}
+	return Fix64(int64(t))
+}
 
 func (f Fix64) Int() int {
 	return int(int64(f) / one)

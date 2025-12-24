@@ -35,12 +35,11 @@ func init() {
 
 // logic*.go 动态事件
 var (
-	Event5 = event.New[func(s string, i int)]()
+	Event5 = event.Event[func(s string, i int)]()
 )
 
 // main thread
 func TestEvent2(t *testing.T) {
-	event.LockStaticEventReg() // 锁定注册，防止后续注册
 	// Event2.Reg(func(s string) { // panic,因为已经锁定注册
 	// 	fmt.Println("C", s)
 	// })
@@ -53,4 +52,11 @@ func TestEvent2(t *testing.T) {
 	Event1.Call("_EventTest2A", 100)
 	Event2.Call("_EventTest2A")
 	//Event2.Call("_EventTest2A", 2123) // 参数不匹配
+	e5 := func(s string, i int) {
+		fmt.Println("E6", s, i)
+	}
+	Event5.Reg(e5)
+	Event5.Call("_EventTest2A", 100)
+	Event5.UnReg(e5)
+	Event5.Call("_EventTest2B", 200)
 }

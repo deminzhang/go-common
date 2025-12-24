@@ -20,18 +20,12 @@ func (e *StaticEvent[T]) Reg(cb T) {
 	e.cbs = append(e.cbs, reflect.ValueOf(cb))
 }
 
-// 全局锁定静态事件注册
-func LockStaticEventReg() {
-	lockReg = true
-}
 func Def[T any]() *StaticEvent[T] {
 	cbType := reflect.TypeFor[T]()
 	if cbType.Kind() != reflect.Func {
 		panic("Event type parameter must be a function")
 	}
-	e := &StaticEvent[T]{
-		cbs: make([]reflect.Value, 0, 1),
-	}
+	e := &StaticEvent[T]{}
 	fn := reflect.MakeFunc(cbType, func(args []reflect.Value) []reflect.Value {
 		var ret []reflect.Value // 返回最后一个回调的返回值
 		for _, cb := range e.cbs {

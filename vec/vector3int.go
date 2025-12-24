@@ -9,9 +9,9 @@ import (
 type POSKEY int64
 
 type Vector3Int struct {
-	X int32
-	Y int32
-	Z int32
+	X int32 `json:"x"`
+	Y int32 `json:"y"`
+	Z int32 `json:"z"`
 }
 
 func (this *Vector3Int) Set(x, y, z int32) {
@@ -69,14 +69,6 @@ func (this *Vector3Int) ShortKey() uint32 {
 }
 
 func (this Vector3Int) ToVector2Int() Vector2Int { return Vector2Int{X: this.X, Y: this.Z} }
-
-//func (this Vector3Int) ToProtoVec3() *comm.Vec3 {
-//	return &comm.Vec3{X: int64(this.X), Y: int64(this.Y), Z: int64(this.Z)}
-//}
-//
-//func (this *Vector3Int) SetProtoVec3(v *comm.Vec3) {
-//	this.Set(int32(v.X), int32(v.Y), int32(v.Z))
-//}
 
 func (this *Vector3Int) RotateX(angle int) Vector3Int {
 	s := mathtable.SinByAngle(angle)
