@@ -7,7 +7,7 @@ import (
 )
 
 // 三维向量：(x,y,z)
-
+// Deprecated: 使用泛型版本 vec.Vec3[float32] 替代
 type Vector3 struct {
 	X float32 `json:"x"`
 	Y float32 `json:"y"`

@@ -39,7 +39,7 @@ func rotatePointAround(p, origin vec.Vec2[float32], angleDeg float32) vec.Vec2[f
 	return vec.Vec2[float32]{X: float32(x) + origin.X, Y: float32(y) + origin.Y}
 }
 
-func pointInRectangle(p vec.Vec2[float32], r *Rectangle) bool {
+func pointInRectangle(p vec.Vec2[float32], r *OBB) bool {
 	// rotate point into rectangle local space by -angle
 	local := rotatePointAround(p, r.Pos, -r.Angle)
 	dx := float32(math.Abs(float64(local.X - r.Pos.X)))
@@ -180,7 +180,7 @@ func closestPointOnSegment(p, a, b vec.Vec2[float32]) vec.Vec2[float32] {
 	return vec.Vec2[float32]{X: float32(cx), Y: float32(cy)}
 }
 
-func rectangleCorners(r *Rectangle) []vec.Vec2[float32] {
+func rectangleCorners(r *OBB) []vec.Vec2[float32] {
 	hw := r.Width / 2.0
 	hh := r.Height / 2.0
 	corners := []vec.Vec2[float32]{
@@ -201,7 +201,7 @@ func rectangleCorners(r *Rectangle) []vec.Vec2[float32] {
 	return res
 }
 
-func rectAxes(r *Rectangle) []vec.Vec2[float32] {
+func rectAxes(r *OBB) []vec.Vec2[float32] {
 	rad := degToRad(r.Angle)
 	c := float64(math.Cos(rad))
 	s := float64(math.Sin(rad))
@@ -235,7 +235,7 @@ func projectionsOverlap(aMin, aMax, bMin, bMax float64) bool {
 	return !(aMax < bMin || bMax < aMin)
 }
 
-func rectRectIntersectSAT(a, b *Rectangle) bool {
+func rectRectIntersectSAT(a, b *OBB) bool {
 	aCorners := rectangleCorners(a)
 	bCorners := rectangleCorners(b)
 	axes := append(rectAxes(a), rectAxes(b)...)

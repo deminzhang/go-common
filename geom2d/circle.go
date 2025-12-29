@@ -23,7 +23,18 @@ func (c *Circle) Intersects(target IShape) bool {
 		return c.intersectsCircle(other)
 	case *Sector:
 		return c.intersectsSector(other)
-	case *Rectangle:
+	case *AABB:
+		// closest point on AABB to circle center (AABB is axis-aligned)
+		dx := float64(c.Pos.X - other.Pos.X)
+		dy := float64(c.Pos.Y - other.Pos.Y)
+		hw := float64(other.Width / 2.0)
+		hh := float64(other.Height / 2.0)
+		closestX := clamp(dx, -hw, hw)
+		closestY := clamp(dy, -hh, hh)
+		dx2 := dx - closestX
+		dy2 := dy - closestY
+		return dx2*dx2+dy2*dy2 <= float64(c.Radius*c.Radius)+1e-6
+	case *OBB:
 		return other.Intersects(c)
 	case *LineSegment:
 		return other.Intersects(c)

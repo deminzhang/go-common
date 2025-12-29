@@ -24,7 +24,9 @@ func (s *Sector) Intersects(target IShape) bool {
 		return s.intersectsCircle(other)
 	case *Sector:
 		return s.intersectsSector(other)
-	case *Rectangle:
+	case *OBB:
+		return other.Intersects(s)
+	case *AABB:
 		return other.Intersects(s)
 	case *LineSegment:
 		return other.Intersects(s)

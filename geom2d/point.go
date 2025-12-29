@@ -24,8 +24,11 @@ func (p *Point) Intersects(target IShape) bool {
 		return p.intersectsSector(other)
 	case *LineSegment:
 		return p.isOnLineSegment(other.P1.Pos, other.P2.Pos)
-	case *Rectangle:
+	case *OBB:
 		return p.intersectsRectangle(other)
+	case *AABB:
+		// AABB is axis-aligned rectangle, reuse rectangle point test with zero-rotation OBB
+		return pointInRectangle(p.Pos, &OBB{AABB: *other})
 	case *Triangle:
 		return p.intersectsTriangle(other)
 	}
@@ -43,7 +46,7 @@ func (p *Point) intersectsSector(sector *Sector) bool {
 	if !inCircle {
 		return false
 	}
-	dir := vec.Vector2{
+	dir := vec.Vec2[float32]{
 		X: p.Pos.X - sector.Pos.X,
 		Y: p.Pos.Y - sector.Pos.Y,
 	}
@@ -82,7 +85,7 @@ func (p *Point) isOnLineSegment(start, end vec.Vec2[float32]) bool {
 	return true
 }
 
-func (p *Point) intersectsRectangle(rect *Rectangle) bool {
+func (p *Point) intersectsRectangle(rect *OBB) bool {
 	return pointInRectangle(p.Pos, rect)
 }
 

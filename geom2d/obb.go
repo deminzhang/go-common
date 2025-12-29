@@ -6,18 +6,16 @@ import (
 	"github.com/deminzhang/go-common/vec"
 )
 
-type Rectangle struct {
-	BaseShape
-	Width  float32
-	Height float32
-	Angle  float32 // 旋转角度（度）
+type OBB struct {
+	AABB
+	Angle float32 // 旋转角度（度）
 }
 
-func NewRectangle(x, y, width, height, angle float32) *Rectangle {
-	return &Rectangle{BaseShape: BaseShape{Pos: vec.Vec2[float32]{X: x, Y: y}}, Width: width, Height: height, Angle: angle}
+func NewOBB(x, y, width, height, angle float32) *OBB {
+	return &OBB{AABB: AABB{BaseShape: BaseShape{Pos: vec.Vec2[float32]{X: x, Y: y}}, Width: width, Height: height}, Angle: angle}
 }
 
-func (r *Rectangle) Intersects(target IShape) bool {
+func (r *OBB) Intersects(target IShape) bool {
 	switch other := target.(type) {
 	case *Point:
 		return pointInRectangle(other.Pos, r)
@@ -33,8 +31,11 @@ func (r *Rectangle) Intersects(target IShape) bool {
 		dx2 := dx - closestX
 		dy2 := dy - closestY
 		return dx2*dx2+dy2*dy2 <= float64(other.Radius*other.Radius)+1e-6
-	case *Rectangle:
+	case *OBB:
 		return rectRectIntersectSAT(r, other)
+	case *AABB:
+		// treat AABB as OBB with zero rotation
+		return rectRectIntersectSAT(r, &OBB{AABB: *other})
 	case *LineSegment:
 		// check endpoints
 		if pointInRectangle(other.P1.Pos, r) || pointInRectangle(other.P2.Pos, r) {

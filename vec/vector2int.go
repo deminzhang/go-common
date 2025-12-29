@@ -1,5 +1,6 @@
 package vec
 
+//Deprecated: 使用泛型版本 vec.Vec2[int32] 替代
 type Vector2Int struct {
 	X int32 `json:"x"`
 	Y int32 `json:"y"`

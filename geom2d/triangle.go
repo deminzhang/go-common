@@ -32,8 +32,10 @@ func (t *Triangle) Intersects(target IShape) bool {
 			return true
 		}
 		return false
-	case *Rectangle:
+	case *OBB:
 		// delegate to rectangle
+		return other.Intersects(t)
+	case *AABB:
 		return other.Intersects(t)
 	case *LineSegment:
 		// endpoints in triangle

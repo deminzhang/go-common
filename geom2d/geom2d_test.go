@@ -5,7 +5,7 @@ import (
 )
 
 func TestPointRectangle(t *testing.T) {
-	r := NewRectangle(0, 0, 2, 2, 0)
+	r := NewOBB(0, 0, 2, 2, 0)
 	p := NewPoint(0.5, 0.5)
 	if !p.Intersects(r) {
 		t.Fatalf("expected point inside rectangle")
@@ -37,8 +37,8 @@ func TestSectorSector(t *testing.T) {
 }
 
 func TestRectRect(t *testing.T) {
-	r1 := NewRectangle(0, 0, 4, 2, 30)
-	r2 := NewRectangle(1, 0, 2, 2, -15)
+	r1 := NewOBB(0, 0, 4, 2, 30)
+	r2 := NewOBB(1, 0, 2, 2, -15)
 	if !r1.Intersects(r2) || !r2.Intersects(r1) {
 		t.Fatalf("expected rectangles intersect")
 	}
@@ -57,5 +57,29 @@ func TestTriangleCircle(t *testing.T) {
 	c := NewCircle(1, 1, 0.5)
 	if !tri.Intersects(c) {
 		t.Fatalf("expected triangle intersect circle")
+	}
+}
+
+func TestPointAABB(t *testing.T) {
+	a := NewAABB(0, 0, 2, 2)
+	p := NewPoint(0.5, 0.5)
+	if !p.Intersects(a) || !a.Intersects(p) {
+		t.Fatalf("expected point and AABB intersect")
+	}
+}
+
+func TestCircleAABB(t *testing.T) {
+	a := NewAABB(0, 0, 4, 4)
+	c := NewCircle(2, 0, 1)
+	if !c.Intersects(a) || !a.Intersects(c) {
+		t.Fatalf("expected circle and AABB intersect")
+	}
+}
+
+func TestRectAABB(t *testing.T) {
+	r := NewOBB(0, 0, 4, 2, 30)
+	a := NewAABB(1, 0, 2, 2)
+	if !r.Intersects(a) || !a.Intersects(r) {
+		t.Fatalf("expected OBB and AABB intersect")
 	}
 }

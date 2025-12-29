@@ -4,6 +4,7 @@ import (
 	"math"
 )
 
+// Deprecated: 使用泛型版本 vec.Vec2[float32] 替代
 type Vector2 struct {
 	X float32 `json:"x"`
 	Y float32 `json:"y"`

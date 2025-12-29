@@ -44,11 +44,24 @@ func (ls *LineSegment) Intersects(target IShape) bool {
 		if segmentIntersectsSegment(ls.P1.Pos, ls.P2.Pos, other.Pos, pStart) || segmentIntersectsSegment(ls.P1.Pos, ls.P2.Pos, other.Pos, pEnd) {
 			return true
 		}
-	case *Rectangle:
+	case *OBB:
 		if pointInRectangle(ls.P1.Pos, other) || pointInRectangle(ls.P2.Pos, other) {
 			return true
 		}
 		rCorners := rectangleCorners(other)
+		edges := [][2]vec.Vec2[float32]{{rCorners[0], rCorners[1]}, {rCorners[1], rCorners[2]}, {rCorners[2], rCorners[3]}, {rCorners[3], rCorners[0]}}
+		for _, e := range edges {
+			if segmentIntersectsSegment(ls.P1.Pos, ls.P2.Pos, e[0], e[1]) {
+				return true
+			}
+		}
+	case *AABB:
+		// treat AABB as OBB with zero rotation
+		ob := &OBB{AABB: *other}
+		if pointInRectangle(ls.P1.Pos, ob) || pointInRectangle(ls.P2.Pos, ob) {
+			return true
+		}
+		rCorners := rectangleCorners(ob)
 		edges := [][2]vec.Vec2[float32]{{rCorners[0], rCorners[1]}, {rCorners[1], rCorners[2]}, {rCorners[2], rCorners[3]}, {rCorners[3], rCorners[0]}}
 		for _, e := range edges {
 			if segmentIntersectsSegment(ls.P1.Pos, ls.P2.Pos, e[0], e[1]) {

@@ -124,37 +124,6 @@ func (this *FixVector3) ScaledToLength(newLength Fix64) FixVector3 {
 	return v
 }
 
-//func (this *FixVector3) ToProtoVec3() *comm.Vec3 {
-//	return &comm.Vec3{
-//		X: int64(this.X),
-//		Y: int64(this.Y),
-//		Z: int64(this.Z),
-//	}
-//}
-//
-//func (this *FixVector3) SetProtoVec3(v *comm.Vec3) {
-//	this.Set(Fix64(v.X), Fix64(v.Y), Fix64(v.Z))
-//}
-
-func (this *FixVector3) Vector3() Vector3 {
-	return Vector3{
-		X: this.X.Float32(),
-		Y: this.Y.Float32(),
-		Z: this.Z.Float32(),
-	}
-}
-
-func (this *FixVector3) Vector2() Vector2 {
-	return Vector2{
-		X: this.X.Float32(),
-		Y: this.Z.Float32(),
-	}
-}
-
-func (this *FixVector3) FromVector3(v *Vector3) {
-	this.Set(NewFix64(v.X), NewFix64(v.Y), NewFix64(v.Z))
-}
-
 func NewFixVector3(x, y, z Fix64) FixVector3 {
 	var tmp FixVector3
 	tmp.X = x
